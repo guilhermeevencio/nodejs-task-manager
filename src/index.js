@@ -53,7 +53,35 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { title, deadline } = request.body;
+  const { user } = request;
+  const id = request.params.id;
+
+  const findToDo = user.todos.find((todo) => todo.id === id );
+
+  if(!findToDo) {
+    return response.status(400).json({ error: 'todo not found!' });
+  }
+
+  const editedToDo = {
+    ...findToDo,
+    title,
+    deadline: new Date(deadline),
+  }
+
+  const newList = user.todos.map((todo) => {
+    const newToDos = [];
+    if(todo.id === editedToDo.id) {
+      newToDos.push(editedToDo);
+    } else {newToDos.push(todo);}
+    return newToDos;
+  });
+
+  console.log(editedToDo);
+
+  user.todos = newList;
+
+  return response.status(201).json(user.todos);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
@@ -64,6 +92,6 @@ app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   // Complete aqui
 });
 
-app.listen(3333);
+// app.listen(3333);
 
 module.exports = app;
