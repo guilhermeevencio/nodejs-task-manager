@@ -56,36 +56,30 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { title, deadline } = request.body;
   const { user } = request;
   const id = request.params.id;
-
   const findToDo = user.todos.find((todo) => todo.id === id );
-
   if(!findToDo) {
-    return response.status(400).json({ error: 'todo not found!' });
+    return response.status(404).json({ error: 'todo not found!' });
   }
 
-  const editedToDo = {
-    ...findToDo,
-    title,
-    deadline: new Date(deadline),
-  }
+  findToDo.title = title;
+  findToDo.deadline = new Date(deadline);
 
-  const newList = user.todos.map((todo) => {
-    const newToDos = [];
-    if(todo.id === editedToDo.id) {
-      newToDos.push(editedToDo);
-    } else {newToDos.push(todo);}
-    return newToDos;
-  });
-
-  console.log(editedToDo);
-
-  user.todos = newList;
-
-  return response.status(201).json(user.todos);
+  return response.status(201).json({title, deadline, done: false });
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const id = request.params.id;
+  const findToDo = user.todos.find((todo) => todo.id === id );
+
+  if(!findToDo) {
+    return response.status(404).json({ error: 'todo not found!' });
+  }
+
+  findToDo.done = true;
+
+  return response.json(findToDo);
+
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
